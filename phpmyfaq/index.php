@@ -348,7 +348,7 @@ if ($id !== 0) {
         ->setReferenceId($id);
     $seoData = $seo->get($seoEntity);
 
-    $title = ' - ' . $seoData->getTitle();
+    $title = $seoData->getTitle();
     $keywords = ',' . $faq->faqRecord['keywords'];
     $metaDescription = str_replace('"', '', $seoData->getDescription() ?? '');
     $url = sprintf(
@@ -384,7 +384,7 @@ if ($solutionId) {
         ->setReferenceLanguage($lang);
     $seoData = $seo->get($seoEntity);
 
-    $title = ' - ' . $seoData->getTitle();
+    $title = $seoData->getTitle();
     $keywords = ',' . $faq->getKeywords($id);
     $metaDescription = str_replace('"', '', $seoData->getDescription());
     $url = sprintf(
@@ -442,8 +442,16 @@ if (isset($cat) && ($cat !== 0) && ($id === 0) && isset($category->categoryName[
         ->setType(SeoType::CATEGORY)
         ->setReferenceId($cat);
     $seoData = $seo->get($seoEntity);
-    $title = ' - ' . $seoData->getTitle() ?? $category->categoryName[$cat]['name'];
+    $title = $seoData->getTitle() ?? $category->categoryName[$cat]['name'];
     $metaDescription = $seoData->getDescription() ?? $category->categoryName[$cat]['description'];
+}
+
+//
+// Glossary
+//
+if ('glossary' === $action) {
+    $title = $faqConfig->get('seo.glossary.title');
+    $metaDescription = $faqConfig->get('seo.glossary.description');
 }
 
 //
@@ -555,12 +563,11 @@ if ($faqConfig->isSignInWithMicrosoftActive()) {
 
 $tplMainPage = [
     'msgLoginUser' => $user->isLoggedIn() ? $user->getUserData('display_name') : Translation::get('msgLoginUser'),
-    'title' => Strings::htmlspecialchars($faqConfig->get('seo.title') . $title),
+    'title' => $title,
     'baseHref' => Strings::htmlspecialchars($faqSystem->getSystemUri($faqConfig)),
     'version' => $faqConfig->getVersion(),
     'header' => Strings::htmlentities(str_replace('"', '', $faqConfig->getTitle())),
-    'metaTitle' => Strings::htmlentities(str_replace('"', '', $faqConfig->getTitle() . $title)),
-    'metaDescription' => Strings::htmlentities($metaDescription ?? $faqConfig->get('seo.description')),
+    'metaDescription' => Strings::htmlspecialchars($metaDescription ?? $faqConfig->get('seo.description')),
     'metaKeywords' => Strings::htmlentities($keywords),
     'metaPublisher' => Strings::htmlentities($faqConfig->get('main.metaPublisher')),
     'metaLanguage' => Translation::get('metaLanguage'),
